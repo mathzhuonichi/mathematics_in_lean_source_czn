@@ -52,23 +52,71 @@ example (a b c : Nat) (h : a * b = a * c) (h' : a ≠ 0) : b = c :=
 example {m n : ℕ} (coprime_mn : m.coprime n) : m ^ 2 ≠ 2 * n ^ 2 := by
   intro sqr_eq
   have : 2 ∣ m := by
-    sorry
+    -- sorry
+    apply Nat.Prime.dvd_of_dvd_pow
+    trivial
+    rw[sqr_eq]
+    norm_num
   obtain ⟨k, meq⟩ := dvd_iff_exists_eq_mul_left.mp this
   have : 2 * (2 * k ^ 2) = 2 * n ^ 2 := by
     rw [← sqr_eq, meq]
     ring
-  have : 2 * k ^ 2 = n ^ 2 :=
-    sorry
+  have : 2 * k ^ 2 = n ^ 2 :=by
+    -- sorry
+    -- (mul_right_inj' (by norm_num)).mp this
+    rw[mul_right_inj'] at this
+    assumption
+    norm_num
   have : 2 ∣ n := by
-    sorry
+    -- sorry
+    apply Nat.Prime.dvd_of_dvd_pow
+    norm_num
+    rw[←this]
+    norm_num
   have : 2 ∣ m.gcd n := by
-    sorry
+    -- sorry
+    apply Nat.dvd_gcd
+    trivial
+    trivial
   have : 2 ∣ 1 := by
-    sorry
+    -- sorry
+    rw[coprime_mn] at this
+    trivial
   norm_num at this
 
 example {m n p : ℕ} (coprime_mn : m.coprime n) (prime_p : p.Prime) : m ^ 2 ≠ p * n ^ 2 := by
-  sorry
+  -- sorry
+  intro sq_eq
+  have pmidm:p∣m:=by
+    apply Nat.Prime.dvd_of_dvd_pow
+    exact prime_p
+    rw[sq_eq]
+    norm_num
+  have existk:∃ x, m=x*p:=by
+    apply dvd_iff_exists_eq_mul_left.mp pmidm
+  rcases existk with ⟨k,meqpk⟩
+  have: p * (p * k ^ 2)=p * n ^ 2:=by
+    rw[←sq_eq,meqpk]
+    ring
+  have: p*k^2=n^2:=by
+    rw[mul_right_inj'] at this
+    trivial
+    exact Nat.Prime.ne_zero prime_p
+  have pmidn:p∣n:=by
+    apply Nat.Prime.dvd_of_dvd_pow
+    exact prime_p
+    rw[←this]
+    norm_num
+  have: p∣Nat.gcd m n:=by
+    apply Nat.dvd_gcd
+    assumption
+    assumption
+  rw[coprime_mn] at this
+  have : 2 ≤ 1 := by
+    apply prime_p.two_le.trans
+    exact Nat.le_of_dvd zero_lt_one this
+  norm_num at this
+
 #check Nat.factors
 #check Nat.prime_of_mem_factors
 #check Nat.prod_factors
@@ -117,4 +165,3 @@ example {m n k r : ℕ} (nnz : n ≠ 0) (pow_eq : m ^ k = r * n ^ k) {p : ℕ} (
   sorry
 
 #check multiplicity
-
