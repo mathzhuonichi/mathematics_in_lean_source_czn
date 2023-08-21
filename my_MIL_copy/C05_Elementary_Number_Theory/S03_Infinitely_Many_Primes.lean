@@ -47,18 +47,35 @@ theorem exists_prime_factor {n : Nat} (h : 2 ≤ n) : ∃ p : Nat, p.Prime ∧ p
 theorem primes_infinite : ∀ n, ∃ p > n, Nat.Prime p := by
   intro n
   have : 2 ≤ Nat.factorial (n + 1) + 1 := by
-    sorry
+    -- sorry
+    rw[Nat.factorial,(by norm_num:2=1+1)]
+    simp
+    rw[← mul_one 1,← Nat.factorial]
+    apply mul_le_mul
+    norm_num
+    apply Nat.succ_le_succ
+    apply zero_le
+    apply Nat.factorial_le
+    apply zero_le
+    norm_num
+    apply zero_le
   rcases exists_prime_factor this with ⟨p, pp, pdvd⟩
   refine' ⟨p, _, pp⟩
   show p > n
   by_contra ple
   push_neg  at ple
   have : p ∣ Nat.factorial (n + 1) := by
-    sorry
+    -- sorry
+    apply Nat.dvd_factorial pp.pos
+    linarith
   have : p ∣ 1 := by
-    sorry
+    -- sorry
+    convert Nat.dvd_sub' pdvd this
+    norm_num
   show False
-  sorry
+  -- sorry
+  have :=Nat.le_of_dvd zero_lt_one this
+  linarith[pp.two_le]
 open Finset
 
 section
@@ -228,4 +245,3 @@ theorem primes_mod_4_eq_3_infinite : ∀ n, ∃ p > n, Nat.Prime p ∧ p % 4 = 3
   have : p = 3 := by
     sorry
   contradiction
-
