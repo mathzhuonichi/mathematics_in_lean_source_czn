@@ -108,9 +108,18 @@ section
 variable {α : Type*} [DecidableEq α] (r s t : Finset α)
 
 example : (r ∪ s) ∩ (r ∪ t) = r ∪ s ∩ t := by
-  sorry
+  -- sorry
+  -- ext x
+  -- rw[mem_inter,mem_union,mem_union,mem_union,mem_inter]
+  -- tauto
+  apply subset_antisymm
+  rintro x ⟨(xr|xs),(xr'|xt)⟩
+
 example : (r \ s) \ t = r \ (s ∪ t) := by
-  sorry
+  -- sorry
+  apply subset_antisymm
+  intro x hx
+  rcases hx with ⟨xrns,xnt⟩
 
 end
 
