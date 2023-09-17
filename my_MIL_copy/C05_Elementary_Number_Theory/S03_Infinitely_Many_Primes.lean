@@ -109,28 +109,35 @@ variable {α : Type*} [DecidableEq α] (r s t : Finset α)
 
 example : (r ∪ s) ∩ (r ∪ t) = r ∪ s ∩ t := by
   -- sorry
-  -- ext x
-  -- rw[mem_inter,mem_union,mem_union,mem_union,mem_inter]
-  -- tauto
-  apply subset_antisymm
-  rintro x ⟨(xr|xs),(xr'|xt)⟩
+  ext x
+  rw[mem_inter,mem_union,mem_union,mem_union,mem_inter]
+  tauto
 
 example : (r \ s) \ t = r \ (s ∪ t) := by
   -- sorry
-  apply subset_antisymm
-  intro x hx
-  rcases hx with ⟨xrns,xnt⟩
+  ext x
+  rw[mem_sdiff,mem_sdiff,mem_sdiff,mem_union]
+  tauto
 
 end
 
 example (s : Finset ℕ) (n : ℕ) (h : n ∈ s) : n ∣ ∏ i in s, i :=
   Finset.dvd_prod_of_mem _ h
 
+#check Nat.Prime.eq_one_or_self_of_dvd
 theorem _root_.Nat.Prime.eq_of_dvd_of_prime {p q : ℕ}
       (prime_p : Nat.Prime p) (prime_q : Nat.Prime q) (h : p ∣ q) :
     p = q := by
-  sorry
+  -- sorry
+  have p1orq:p=1∨p=q:=by
+    apply Nat.Prime.eq_one_or_self_of_dvd prime_q p h
+  cases p1orq
+  have :p≥ 2:=by
+    apply prime_p.two_le
+  linarith
+  trivial
 
+#check Finset.prod_insert
 theorem mem_of_dvd_prod_primes {s : Finset ℕ} {p : ℕ} (prime_p : p.Prime) :
     (∀ n ∈ s, Nat.Prime n) → (p ∣ ∏ n in s, n) → p ∈ s := by
   intro h₀ h₁
@@ -139,7 +146,17 @@ theorem mem_of_dvd_prod_primes {s : Finset ℕ} {p : ℕ} (prime_p : p.Prime) :
     linarith [prime_p.two_le]
   simp [Finset.prod_insert ans, prime_p.dvd_mul] at h₀ h₁
   rw [mem_insert]
-  sorry
+  -- sorry
+  have prime_a:Nat.Prime a:=by
+    apply h₀.1
+  cases h₁
+  left
+  apply _root_.Nat.Prime.eq_of_dvd_of_prime prime_p prime_a
+  trivial
+  right
+  apply ih h₀.2
+  trivial
+
 example (s : Finset ℕ) (x : ℕ) : x ∈ s.filter Nat.Prime ↔ x ∈ s ∧ x.Prime :=
   mem_filter
 
@@ -153,15 +170,31 @@ theorem primes_infinite' : ∀ s : Finset Nat, ∃ p, Nat.Prime p ∧ p ∉ s :=
     simp [s'_def]
     apply h
   have : 2 ≤ (∏ i in s', i) + 1 := by
-    sorry
+    -- sorry
+    apply Nat.succ_le_succ
+    apply Nat.succ_le_of_lt
+    apply Finset.prod_pos
+    intro n ns'
+    simp[filter] at ns'
+    apply ns'.2.pos
   rcases exists_prime_factor this with ⟨p, pp, pdvd⟩
   have : p ∣ ∏ i in s', i := by
-    sorry
+    -- sorry
+    apply dvd_prod_of_mem
+    rw[s'_def]
+    simp
+    constructor
+    apply h
+    exact pp
+    exact pp
   have : p ∣ 1 := by
     convert Nat.dvd_sub' pdvd this
     simp
   show False
-  sorry
+  -- sorry
+  have:= Nat.le_of_dvd zero_lt_one this
+  linarith [pp.two_le]
+
 theorem bounded_of_ex_finset (Q : ℕ → Prop) :
     (∃ s : Finset ℕ, ∀ k, Q k → k ∈ s) → ∃ n, ∀ k, Q k → k < n := by
   rintro ⟨s, hs⟩
